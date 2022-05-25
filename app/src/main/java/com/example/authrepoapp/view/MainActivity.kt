@@ -2,21 +2,24 @@ package com.example.authrepoapp.view
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.ProgressBar
 import android.widget.TextView
+import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.authrepoapp.R
+import com.example.authrepoapp.model.SquareModel
 import com.example.authrepoapp.model.Userdata
 import com.example.authrepoapp.viewmodel.ListUserViewModel
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var viewModel: ListUserViewModel
-    private var listAdapter = UserListAdapter(arrayListOf<Userdata>())
+    private var listAdapter = UserListAdapter(SquareModel())
     private lateinit var recyclerView: RecyclerView
     private lateinit var circleLoading: ProgressBar
     private lateinit var errorText: TextView
@@ -44,7 +47,12 @@ class MainActivity : AppCompatActivity() {
 
         viewModel.userData.observe (this) { countries ->
             countries.let {
-                listAdapter.updateDataSet(it)
+                Log.d("TAG", "observeViewModel: Data Updated ${it}")
+                it?.let {
+                    listAdapter.updateDataSet(it)
+//                    recyclerView.adapter = listAdapter
+                    Toast.makeText(this, it[0].description, Toast.LENGTH_SHORT).show()
+                }
             }
         }
 
@@ -58,6 +66,8 @@ class MainActivity : AppCompatActivity() {
             if (it) {
                 errorText.visibility = View.GONE
                 recyclerView.visibility = View.GONE
+            } else {
+                recyclerView.visibility = View.VISIBLE
             }
         }
     }

@@ -1,20 +1,25 @@
 package com.example.authrepoapp.view
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.authrepoapp.R
+import com.example.authrepoapp.model.SquareModel
 import com.example.authrepoapp.model.Userdata
 import com.example.authrepoapp.view.UserListAdapter.*
 
-class UserListAdapter (private val userList: ArrayList<Userdata>): RecyclerView.Adapter<ViewHolder>() {
+class UserListAdapter (private val userList: SquareModel): RecyclerView.Adapter<ViewHolder>() {
 
-    fun updateDataSet (newDataSet: List<Userdata>) {
+//    @SuppressLint("NotifyDataSetChanged")
+    fun updateDataSet (newDataSet: SquareModel?) {
         userList.clear()
-        userList.addAll(newDataSet)
-        notifyDataSetChanged()
+        newDataSet?.let {
+            userList.addAll(newDataSet)
+        }
+        this.notifyDataSetChanged()
     }
 
     class ViewHolder(view: View): RecyclerView.ViewHolder(view) {
@@ -26,7 +31,7 @@ class UserListAdapter (private val userList: ArrayList<Userdata>): RecyclerView.
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.listTextView.text = userList[position].username
+        holder.listTextView.text = userList[position].description
     }
 
     override fun getItemCount() = userList.size
