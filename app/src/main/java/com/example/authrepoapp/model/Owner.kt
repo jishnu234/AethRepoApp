@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class Owner(
     @SerialName("avatar_url")
-    val avatarUrl: String,
+    val avatarUrl: String?,
     @SerialName("events_url")
     val eventsUrl: String,
     @SerialName("followers_url")

@@ -39,7 +39,7 @@ data class SquareModelItem(
     @SerialName("deployments_url")
     val deploymentsUrl: String,
     @SerialName("description")
-    val description: String,
+    val description: String?,
     @SerialName("disabled")
     val disabled: Boolean,
     @SerialName("downloads_url")

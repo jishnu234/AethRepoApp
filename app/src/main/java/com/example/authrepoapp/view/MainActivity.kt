@@ -1,41 +1,45 @@
 package com.example.authrepoapp.view
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.ProgressBar
 import android.widget.TextView
-import android.widget.Toast
-import androidx.lifecycle.Observer
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.authrepoapp.R
 import com.example.authrepoapp.model.SquareModel
-import com.example.authrepoapp.model.Userdata
 import com.example.authrepoapp.viewmodel.ListUserViewModel
+import com.facebook.shimmer.ShimmerFrameLayout
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshListener {
 
     private lateinit var viewModel: ListUserViewModel
-    private var listAdapter = UserListAdapter(SquareModel())
+    private lateinit var listAdapter: UserListAdapter
     private lateinit var recyclerView: RecyclerView
-    private lateinit var circleLoading: ProgressBar
+    private lateinit var shimmerAnim: ShimmerFrameLayout
     private lateinit var errorText: TextView
+    private lateinit var swipeRefreshLayout: SwipeRefreshLayout
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        //hooks
         viewModel = ViewModelProvider(this)[ListUserViewModel::class.java]
+        listAdapter = UserListAdapter(SquareModel(), this)
+        recyclerView = findViewById(R.id.recyclerView)
+        shimmerAnim  = findViewById(R.id.shimmer_loading)
+        errorText  = findViewById(R.id.errorText)
+        swipeRefreshLayout = findViewById(R.id.swipe_refresh_layout)
+
+        swipeRefreshLayout.setOnRefreshListener(this)
+
         viewModel.refresh()
-
-         recyclerView = findViewById(R.id.recyclerView)
-         circleLoading  = findViewById(R.id.circular_indicator)
-         errorText  = findViewById(R.id.errorText)
-
         recyclerView.apply {
-            layoutManager = LinearLayoutManager(context)
+            layoutManager = LinearLayoutManager( context )
             adapter = listAdapter
         }
 
@@ -51,7 +55,6 @@ class MainActivity : AppCompatActivity() {
                 it?.let {
                     listAdapter.updateDataSet(it)
 //                    recyclerView.adapter = listAdapter
-                    Toast.makeText(this, it[0].description, Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -61,7 +64,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         viewModel.loading.observe(this) {
-            it?.let { circleLoading.visibility = if (it) View.VISIBLE else View.GONE }
+            it?.let { shimmerAnim.visibility = if (it) View.VISIBLE else View.GONE }
 
             if (it) {
                 errorText.visibility = View.GONE
@@ -70,5 +73,10 @@ class MainActivity : AppCompatActivity() {
                 recyclerView.visibility = View.VISIBLE
             }
         }
+    }
+
+    override fun onRefresh() {
+        viewModel.refresh()
+        swipeRefreshLayout.isRefreshing = false
     }
 }
