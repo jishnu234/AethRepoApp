@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">AuthRepoApp</string>
     <string name="error_text">Error while Loading Data</string>
+    <string name="something_went_wrong">Something Went Wrong</string>
+    <string name="lost_connection_desc">Seems to have Some Problems. Swipe Down toRefresh the page after connecting to network</string>
+    <string name="network_lost_cd">network_lost</string>
+    <string name="list_image">list image</string>
 </resources>

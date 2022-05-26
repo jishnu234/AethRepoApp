@@ -4,11 +4,11 @@ import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.authrepoapp.di.DaggerSquareComponent
 import com.example.authrepoapp.model.SquareModel
-import com.example.authrepoapp.model.Userdata
 import com.example.authrepoapp.model.network.SquareService
 import kotlinx.coroutines.launch
-import retrofit2.Response
+import javax.inject.Inject
 
 class ListUserViewModel : ViewModel() {
 
@@ -17,6 +17,13 @@ class ListUserViewModel : ViewModel() {
     val error = MutableLiveData<Boolean>()
     private val TAG = "ListUserViewModel"
 
+    @Inject
+    lateinit var squareService: SquareService
+
+    init {
+        DaggerSquareComponent.create().inject(this)
+    }
+
     fun refresh() {
         fetchData()
     }
@@ -24,7 +31,6 @@ class ListUserViewModel : ViewModel() {
     private fun fetchData() = viewModelScope.launch {
         loading.value = true
         try {
-            val squareService = SquareService()
             if (squareService.getSquare().isSuccessful) {
                 userData.value = squareService.getSquare().body()
                 Log.d(TAG, "fetchData: ${userData.value}")

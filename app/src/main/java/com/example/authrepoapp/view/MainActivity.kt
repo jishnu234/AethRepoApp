@@ -2,44 +2,36 @@ package com.example.authrepoapp.view
 
 import android.os.Bundle
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import com.example.authrepoapp.R
+import com.example.authrepoapp.databinding.ActivityMainBinding
 import com.example.authrepoapp.model.SquareModel
 import com.example.authrepoapp.viewmodel.ListUserViewModel
-import com.facebook.shimmer.ShimmerFrameLayout
 
 class MainActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshListener {
 
     private lateinit var viewModel: ListUserViewModel
     private lateinit var listAdapter: UserListAdapter
-    private lateinit var recyclerView: RecyclerView
-    private lateinit var shimmerAnim: ShimmerFrameLayout
-    private lateinit var errorText: TextView
-    private lateinit var swipeRefreshLayout: SwipeRefreshLayout
+    private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(LayoutInflater.from(this))
+        setContentView(binding.root)
 
         //hooks
         viewModel = ViewModelProvider(this)[ListUserViewModel::class.java]
         listAdapter = UserListAdapter(SquareModel(), this)
-        recyclerView = findViewById(R.id.recyclerView)
-        shimmerAnim  = findViewById(R.id.shimmer_loading)
-        errorText  = findViewById(R.id.errorText)
-        swipeRefreshLayout = findViewById(R.id.swipe_refresh_layout)
 
-        swipeRefreshLayout.setOnRefreshListener(this)
+        binding.swipeRefreshLayout.setOnRefreshListener(this)
 
         viewModel.refresh()
-        recyclerView.apply {
-            layoutManager = LinearLayoutManager( context )
+        binding.recyclerView.apply {
+            layoutManager = LinearLayoutManager(context)
             adapter = listAdapter
         }
 
@@ -49,34 +41,43 @@ class MainActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshListener {
 
     private fun observeViewModel() {
 
-        viewModel.userData.observe (this) { countries ->
+        viewModel.userData.observe(this) { countries ->
             countries.let {
                 Log.d("TAG", "observeViewModel: Data Updated ${it}")
                 it?.let {
                     listAdapter.updateDataSet(it)
-//                    recyclerView.adapter = listAdapter
                 }
             }
         }
 
         viewModel.error.observe(this) {
-             it?.let { errorText.visibility = if (it) View.VISIBLE else View.GONE }
+            it?.let {
+                binding.connectionLostScreen.visibility = if (it) View.VISIBLE else View.GONE
+
+                if (it) {
+                    binding.connectionLostScreen.visibility = View.VISIBLE
+                    binding.recyclerView.visibility = View.GONE
+                } else {
+                    binding.connectionLostScreen.visibility = View.GONE
+                    binding.recyclerView.visibility = View.VISIBLE
+                }
+            }
         }
 
         viewModel.loading.observe(this) {
-            it?.let { shimmerAnim.visibility = if (it) View.VISIBLE else View.GONE }
+            it?.let { binding.shimmerLoading.visibility = if (it) View.VISIBLE else View.GONE }
 
             if (it) {
-                errorText.visibility = View.GONE
-                recyclerView.visibility = View.GONE
+                binding.connectionLostScreen.visibility = View.GONE
+                binding.recyclerView.visibility = View.GONE
             } else {
-                recyclerView.visibility = View.VISIBLE
+                binding.recyclerView.visibility = View.VISIBLE
             }
         }
     }
 
     override fun onRefresh() {
         viewModel.refresh()
-        swipeRefreshLayout.isRefreshing = false
+        binding.swipeRefreshLayout.isRefreshing = false
     }
 }
