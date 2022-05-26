@@ -46,7 +46,7 @@ class UserListAdapter(private val userList: SquareModel, private val context: Co
         Glide.with(context)
             .load(
                 userList[position].owner.avatarUrl
-                    ?: "https://avatars.githubusercontent.com/u/82592?v=4"
+                    ?: "https://www.freeiconspng.com/download/25700"
             )
             .centerCrop()
             .placeholder(R.drawable.image_placeholder)
